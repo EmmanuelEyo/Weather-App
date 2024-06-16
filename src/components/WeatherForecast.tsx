@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import WeatherChart from './WeatherChart';
 
 const days = [
-  { day: "Monday", temp: 16, icon: <FaSun />, details: { feel: 19, wind: "NE 5-8 km/h", pressure: "1000 MB", humidity: "51%", sunrise: "6:02 AM", sunset: "8:18 PM", time: "11:42 PM" } },
+  { day: "Mon", temp: 16, icon: <FaSun />, details: { feel: 19, wind: "NE 5-8 km/h", pressure: "1000 MB", humidity: "51%", sunrise: "6:02 AM", sunset: "8:18 PM", time: "11:42 PM" } },
   { day: "Tue", temp: 10, icon: <FaCloudShowersHeavy />, details: { feel: 19, wind: "NE 5-8 km/h", pressure: "1000 MB", humidity: "51%", sunrise: "6:02 AM", sunset: "8:18 PM", time: "11:42 PM" } },
   { day: "Wed", temp: 15, icon: <FaCloudRain />, details: { feel: 19, wind: "NE 5-8 km/h", pressure: "1000 MB", humidity: "51%", sunrise: "6:02 AM", sunset: "8:18 PM", time: "11:42 PM" } },
   { day: "Thu", temp: 11, icon: <FaCloudSun />, details: { feel: 19, wind: "NE 5-8 km/h", pressure: "1000 MB", humidity: "51%", sunrise: "6:02 AM", sunset: "8:18 PM", time: "11:42 PM" } },
@@ -72,6 +72,30 @@ const CardStack = ({ items, offset = 10, scaleFactor = 0.06 }: { items: typeof d
 
 const WeatherForecast: React.FC = () => {
   const [activeTab, setActiveTab] = useState('Forecast');
+  const [screenSize, setScreenSize] = useState([0, 0])
+  const [openCardIndex, setOpenCardIndex] = useState<number | null>(0)
+
+  const handleCardClick = (index: number) => {
+    setOpenCardIndex(openCardIndex === index ? null : index)
+  }
+
+  useEffect(() => {
+    const updateScreenSize = () => {
+      setScreenSize([window.innerWidth, window.innerHeight])
+    }
+    updateScreenSize()
+    window.addEventListener('resize', updateScreenSize)
+
+    return () => {
+      window.removeEventListener('resize', updateScreenSize)
+    }
+  }, [])
+
+  let hiddenClass;
+
+  if (screenSize[0] <= 1024) {
+    hiddenClass = 'hidden';
+  }
 
   const handleTabClick = (tab: string) => {
     setActiveTab(tab);
@@ -79,7 +103,7 @@ const WeatherForecast: React.FC = () => {
 
   return (
     <div className="bg-transparent text-white lg:px-28 lg:py-10 px-2 flex justify-between flex-col lg:flex-row">
-      <div className="block md:hidden flex justify-center mb-4">
+      <div className="block md:hidden justify-center mb-4">
         <CardStack items={days} />
       </div>
       <div className="hidden md:block">
@@ -97,7 +121,51 @@ const WeatherForecast: React.FC = () => {
           </div>
         </div>
         <div className="flex space-x-4 mb-4">
-          <div className="flex flex-col h-52 w-56 items-center bg-[#BBD7EC] p-4 rounded-3xl relative">
+          {days.map((day, index) => (
+            <div key={index} className={`flex flex-col items-center p-4 rounded-3xl cursor-pointer ${openCardIndex === index ? 'bg-[#bbd7ec] h-52 w-56 relative' : 'bg-zinc-800 h-52 w-20'}`} onClick={() => handleCardClick(index)}>
+                {/* <div className="flex justify-between">
+                  <div className='text-lg font-semibold mb-2'>{day.day}</div>
+                  <div className='text-lg font-semibold'>{day.details?.time}</div>
+                </div> */}
+              {openCardIndex === index && (
+                <>
+                  <div className="flex justify-between absolute top-0 right-0 left-0 gap-x-24 bg-[#AECADF] rounded-t-3xl p-2">
+                    <div className='text-lg font-semibold mb-2'>{day.day}</div>
+                    <div className='text-lg font-semibold'>{day.details?.time}</div>
+                  </div>
+                  <div className='flex mt-10 justify-between items-center space-x-10'>
+                    <div className='text-6xl font-bold mb-2 text-black'>{day.temp}°</div>
+                    <div className='flex items-center justify-center text-yellow-300 text-6xl'>
+                      {day.icon}
+                    </div>
+                  </div>
+                  <div className='flex justify-between text-black'>
+                    <div>
+                      <div className="text-xs font-semibold">Real Feel: {day.details?.feel}°</div>
+                      <div className="text-xs font-semibold">Wind: {day.details?.wind}</div>
+                      <div className="text-xs font-semibold">Pressure: {day.details?.pressure}</div>
+                      <div className="text-xs font-semibold">Humidity: {day.details?.humidity}</div>
+                    </div>
+                    <div className='flex flex-col justify-end'>
+                      <div className="text-xs font-semibold">Sunrise: {day.details?.sunrise}</div>
+                      <div className="text-xs font-semibold">Sunset: {day.details?.sunset}</div>
+                    </div>
+                  </div>
+                </>
+              )}
+              {openCardIndex !== index && (
+                <>
+                  <div className='text-lg mb-2'>{day.day}</div>
+                  <hr className='w-10 h-10 text-gray-700' />
+                  <div className='flex items-center justify-center mb-5 text-yellow-300 text-4xl'>
+                    {day.icon}
+                  </div>
+                  <div className='text-3xl font-semibold mb-2'>{day.temp}°</div>
+                </>
+              )}
+            </div>
+          ))}
+          {/* <div className="flex flex-col h-52 w-56 items-center bg-[#BBD7EC] p-4 rounded-3xl relative">
             <div className="absolute top-0 left-0 right-0 text-black bg-[#AECADF] p-2 rounded-t-3xl flex justify-between">
               <div className="text-lg font-semibold mb-2">{days[0].day}</div>
               <div className="text-lg font-semibold">{days[0].details?.time}</div>
@@ -132,10 +200,10 @@ const WeatherForecast: React.FC = () => {
                 <div className="text-3xl font-semibold mb-2">{day.temp}°</div>
               </div>
             ))}
-          </div>
+          </div> */}
         </div>
       </div>
-      <div className="lg:block hidden">
+      <div className={`xl:block ${hiddenClass}`}>
         <WeatherChart />
       </div>
     </div>
@@ -143,9 +211,3 @@ const WeatherForecast: React.FC = () => {
 };
 
 export default WeatherForecast;
-
-
-
-
-
-
