@@ -1,15 +1,57 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
-const data = [
-  { time: '10AM', value: 30 },
-  { time: '11AM', value: 60 },
-  { time: '12AM', value: 90 },
-  { time: '01PM', value: 50 },
-  { time: '02PM', value: 70 },
-  { time: '03PM', value: 50 },
-];
+interface WeatherData {
+  coord: {
+    lat: number;
+    lon: number;
+  };
+}
 
-const WeatherChart: React.FC = () => {
+interface ForecastData {
+  list: {
+    dt: number;
+    pop: number;
+  }[];
+}
+
+interface ChartData {
+  time: string;
+  value: number;
+}
+
+const WeatherChart: React.FC<{ weatherData: WeatherData | null }> = ({ weatherData }) => {
+  const [chartData, setChartData] = useState<ChartData[]>([]);
+  const apiKey = import.meta.env.VITE_OPENWEATHER_API_KEY as string;
+
+  useEffect(() => {
+    const fetchHourlyData = async () => {
+      if (!weatherData) return;
+      const { coord } = weatherData;
+      const { lat, lon } = coord;
+
+      try {
+        const res = await fetch(`https://api.openweathermap.org/data/2.5/forecast?lat=${lat}&lon=${lon}&appid=${apiKey}`);
+        const data: ForecastData = await res.json();
+
+        if (data.cod !== '200') {
+          console.error('Error fetching weather data:', data.message);
+          return;
+        }
+
+        const hourlyData = data.list.slice(0, 6).map(item => ({
+          time: new Date(item.dt * 1000).toLocaleTimeString('en-US', { hour: 'numeric', hour12: true }),
+          value: item.pop * 100,
+        }));
+
+        setChartData(hourlyData);
+      } catch (err) {
+        console.error('Error fetching weather data:', err);
+      }
+    };
+
+    fetchHourlyData();
+  }, [weatherData, apiKey]);
+
   return (
     <>
       <h1 className='text-2xl text-white'>Chance of rain</h1>
@@ -21,7 +63,7 @@ const WeatherChart: React.FC = () => {
             <span>Rainy</span>
           </div>
           <div className="grid grid-cols-6 gap-2">
-            {data.map((item, index) => (
+            {chartData.map((item, index) => (
               <div key={index} className="relative w-full flex flex-col items-center">
                 <div className="relative w-2 h-32 flex flex-col justify-end bg-gray-700 rounded-md overflow-hidden mt-10">
                   <div
@@ -45,6 +87,8 @@ const WeatherChart: React.FC = () => {
 };
 
 export default WeatherChart;
+
+
 
 
 
