@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { FaBell, FaSun, FaMoon, FaUserCircle, FaTh, FaSearch } from 'react-icons/fa';
+import { WeatherData } from '../types';
 
-const Header: React.FC<{ setWeatherData: (data: any) => void }> = ({ setWeatherData }) => {
+
+const Header: React.FC<{ setWeatherData: (data: WeatherData) => void }> = ({ setWeatherData }) => {
     const [currentLocation, setCurrentLocation] = useState('Loading location...');
     const [searchInput, setSearchInput] = useState('');
     const apiKey = import.meta.env.VITE_OPENWEATHER_API_KEY;

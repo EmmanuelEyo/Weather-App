@@ -8,6 +8,8 @@ interface WeatherData {
 }
 
 interface ForecastData {
+  cod: string;
+  message: number;
   list: {
     dt: number;
     pop: number;
@@ -87,6 +89,7 @@ const WeatherChart: React.FC<{ weatherData: WeatherData | null }> = ({ weatherDa
 };
 
 export default WeatherChart;
+
 
 
 

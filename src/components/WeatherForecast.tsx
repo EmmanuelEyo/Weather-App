@@ -20,6 +20,44 @@ interface Day {
   details: DayDetails;
 }
 
+interface Weather {
+  id: number;
+  main: string;
+  description: string;
+  icon: string;
+}
+
+interface Main {
+  temp: number;
+  feels_like: number;
+  temp_min: number;
+  temp_max: number;
+  pressure: number;
+  humidity: number;
+}
+
+interface Wind {
+  speed: number;
+  deg: number;
+}
+
+interface Sys {
+  sunrise: number;
+  sunset: number;
+}
+
+interface WeatherData {
+  dt: number;
+  main: Main;
+  weather: Weather[];
+  wind: Wind;
+  sys: Sys;
+  coord: {
+    lat: number;
+    lon: number;
+  };
+}
+
 const sampleDays: Day[] = [
   { day: "Mon", temp: 16, icon: <FaSun />, details: { feel: 19, wind: "NE 5-8 km/h", pressure: "1000 MB", humidity: "51%", sunrise: "6:02 AM", sunset: "8:18 PM", time: "11:42 PM" } },
   { day: "Tue", temp: 10, icon: <FaCloudShowersHeavy />, details: { feel: 19, wind: "NE 5-8 km/h", pressure: "1000 MB", humidity: "51%", sunrise: "6:02 AM", sunset: "8:18 PM", time: "11:42 PM" } },
@@ -111,7 +149,7 @@ const getWeatherIcon = (condition: string) => {
   }
 };
 
-const WeatherForecast: React.FC<{ weatherData: any }> = ({ weatherData }) => {
+const WeatherForecast: React.FC<{ weatherData: WeatherData }> = ({ weatherData }) => {
   const [activeTab, setActiveTab] = useState('Forecast');
   const [activePeriod, setActivePeriod] = useState('Today');
   const [forecastData, setForecastData] = useState<Day[]>([]);

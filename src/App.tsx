@@ -3,9 +3,10 @@ import './App.css'
 import Header from './components/Header'
 import Map from './components/Map'
 import WeatherForecast from './components/WeatherForecast'
+import { WeatherData } from './types'
 
 function App() {
-  const [weatherData, setWeatherData] = useState(null)
+  const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
 
   return (
     <>
